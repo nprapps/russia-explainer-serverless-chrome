@@ -1,6 +1,10 @@
+import AWS from 'aws-sdk'
 import Cdp from 'chrome-remote-interface'
 import config from '../config'
 import { log, sleep } from '../utils'
+import URL from 'url'
+
+const s3 = new AWS.S3();
 
 export async function captureScreenshotOfUrl (url) {
   const LOAD_TIMEOUT = (config && config.chrome.pageLoadTimeout) || 1000 * 60
@@ -10,7 +14,7 @@ export async function captureScreenshotOfUrl (url) {
 
   const loading = async (startTime = Date.now()) => {
     if (!loaded && Date.now() - startTime < LOAD_TIMEOUT) {
-      await sleep(100)
+      await sleep(1000)
       await loading(startTime)
     }
   }
@@ -18,7 +22,7 @@ export async function captureScreenshotOfUrl (url) {
   const [tab] = await Cdp.List()
   const client = await Cdp({ host: '127.0.0.1', target: tab })
 
-  const { Network, Page } = client
+  const { Network, Page, Emulation } = client
 
   Network.requestWillBeSent((params) => {
     log('Chrome is sending request for:', params.request.url)
@@ -41,21 +45,29 @@ export async function captureScreenshotOfUrl (url) {
     ])
 
     await Page.navigate({ url }) // https://chromedevtools.github.io/debugger-protocol-viewer/tot/Page/#method-navigate
+
+    const viewportWidth = 580 * 2.0;
+    const viewportHeight = Math.ceil(viewportWidth * 0.562);
+
+    // Set up viewport resolution, etc.
+    const deviceMetrics = {
+      width: viewportWidth,
+      height: viewportHeight,
+      deviceScaleFactor: 0,
+      mobile: false,
+      fitWindow: false,
+    };
+    await Emulation.setDeviceMetricsOverride(deviceMetrics);
+    await Emulation.setVisibleSize({width: viewportWidth, height: viewportHeight});
+
     await loading()
 
     // TODO: resize the chrome "window" so we capture the full height of the page
     const screenshot = await Page.captureScreenshot()
-    result = screenshot.data
+    result = new Buffer(screenshot.data, 'base64');
   } catch (error) {
     console.error(error)
   }
-
-  /* try {
-    log('trying to close tab', tab)
-    await Cdp.Close({ id: tab })
-  } catch (error) {
-    log('unable to close tab', tab, error)
-  }*/
 
   await client.close()
 
@@ -75,12 +87,24 @@ export default (async function captureScreenshotHandler (event) {
     throw new Error('Unable to capture screenshot')
   }
 
+  const parsed = URL.parse(url, true);
+  const filename = "russian-explainer-id-" + parsed.query.ids + ".png";
+  await s3.putObject({
+    "ACL": "public-read",
+    "Bucket": "screenshots.recoveredfactory.net",
+    "Key": filename,
+    "Body": screenshot,
+    "ContentType": "image/png",
+  }).promise();
+
   return {
     statusCode: 200,
-    // it's not possible to send binary via AWS API Gateway as it expects JSON response from Lambda
-    body: `<html><body><img src="data:image/png;base64,${screenshot}" /></body></html>`,
+    body: JSON.stringify({
+      "url": "http://screenshots.recoveredfactory.net.s3-website-us-east-1.amazonaws.com/" + filename,
+      "parsed": parsed.query.ids
+    }),
     headers: {
-      'Content-Type': 'text/html',
+      'Content-Type': 'application/json',
     },
   }
 })

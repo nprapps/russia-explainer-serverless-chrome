@@ -1,18 +1,29 @@
-service: serverless-chrome
+service: eads-screenshot-test03
+
+plugins:
+  - serverless-webpack
+
+custom:
+  #webpackIncludeModules: false # disable auto including modules
+  bucket_name: "screenshots.recoveredfactory.net"
 
 provider:
   name: aws
   runtime: nodejs6.10
   stage: dev
-  region: us-west-2
+  region: us-east-1
   environment:
     CHROME_PATH: ./headless-chrome/headless_shell
 
-custom:
-  webpackIncludeModules: false # disable auto including modules
-
-plugins:
-  - serverless-webpack
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+        - "s3:Put*"
+        - "s3:GetObject"
+      Resource:
+        - "arn:aws:s3:::${self:custom.bucket_name}"
+        - "arn:aws:s3:::${self:custom.bucket_name}/*"
 
 functions:
   run:
@@ -25,3 +36,31 @@ functions:
       - http:
           path: chrome
           method: get
+
+
+#resources:
+  #Outputs:
+    #ScreenshotBucket:
+      #Description: "Screenshot bucket name"
+      #Value: ${self:custom.bucket_name}
+    #CloudFrontUrl:
+      #Description: "CloudFront url"
+      #Value: {"Fn::GetAtt": "CloudFrontEndpoint.DomainName"}
+  #Resources:
+    ## Create an endpoint for the S3 bucket in CloudFront
+    #CloudFrontEndpoint:
+      #Type: AWS::CloudFront::Distribution
+      #Properties:
+        #DistributionConfig:
+          #Enabled: True
+          #DefaultCacheBehavior:
+            #TargetOriginId: ScreenshotBucketOrigin
+            #ViewerProtocolPolicy: redirect-to-https
+            #ForwardedValues:
+              #QueryString: True
+          #Origins:
+            #-
+              #Id: ScreenshotBucketOrigin
+              #DomainName: ${self:custom.bucket_name}.s3.amazonaws.com
+              #CustomOriginConfig:
+                #OriginProtocolPolicy: http-only
