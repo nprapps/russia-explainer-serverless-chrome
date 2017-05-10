@@ -1,4 +1,4 @@
-service: eads-screenshot-test03
+service: russia-explainer-screenshots
 
 plugins:
   - serverless-webpack
