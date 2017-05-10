@@ -2,9 +2,8 @@ import AWS from 'aws-sdk'
 import Cdp from 'chrome-remote-interface'
 import config from '../config'
 import { log, sleep } from '../utils'
-import URL from 'url'
+import slug from 'slug'
 
-const s3 = new AWS.S3();
 
 export async function captureScreenshotOfUrl (url) {
   const LOAD_TIMEOUT = (config && config.chrome.pageLoadTimeout) || 1000 * 60
@@ -22,7 +21,7 @@ export async function captureScreenshotOfUrl (url) {
   const [tab] = await Cdp.List()
   const client = await Cdp({ host: '127.0.0.1', target: tab })
 
-  const { Network, Page, Emulation } = client
+  const { Network, Page, Emulation, DOM } = client
 
   Network.requestWillBeSent((params) => {
     log('Chrome is sending request for:', params.request.url)
@@ -46,8 +45,8 @@ export async function captureScreenshotOfUrl (url) {
 
     await Page.navigate({ url }) // https://chromedevtools.github.io/debugger-protocol-viewer/tot/Page/#method-navigate
 
-    const viewportWidth = 580 * 2.0;
-    const viewportHeight = Math.ceil(viewportWidth * 0.562);
+    const viewportWidth = 600 * 2.0
+    const viewportHeight = Math.ceil(viewportWidth * 0.525)
 
     // Set up viewport resolution, etc.
     const deviceMetrics = {
@@ -56,15 +55,15 @@ export async function captureScreenshotOfUrl (url) {
       deviceScaleFactor: 0,
       mobile: false,
       fitWindow: false,
-    };
-    await Emulation.setDeviceMetricsOverride(deviceMetrics);
-    await Emulation.setVisibleSize({width: viewportWidth, height: viewportHeight});
+    }
+    await Emulation.setDeviceMetricsOverride(deviceMetrics)
+    await Emulation.setVisibleSize({width: viewportWidth, height: viewportHeight})
 
     await loading()
 
-    // TODO: resize the chrome "window" so we capture the full height of the page
     const screenshot = await Page.captureScreenshot()
-    result = new Buffer(screenshot.data, 'base64');
+    result = new Buffer(screenshot.data, 'base64')
+
   } catch (error) {
     console.error(error)
   }
@@ -75,7 +74,10 @@ export async function captureScreenshotOfUrl (url) {
 }
 
 export default (async function captureScreenshotHandler (event) {
-  const { queryStringParameters: { url } } = event
+  const s3 = new AWS.S3()
+  const { queryStringParameters: { id, slug } } = event
+  const url = "https://apps.npr.org/dailygraphics/graphics/trump-card-wireframe-20170410/child.html?ids=" + id
+
   let screenshot
 
   log('Processing screenshot capture for', url)
@@ -87,21 +89,19 @@ export default (async function captureScreenshotHandler (event) {
     throw new Error('Unable to capture screenshot')
   }
 
-  const parsed = URL.parse(url, true);
-  const filename = "russian-explainer-id-" + parsed.query.ids + ".png";
+  const filename = "russian-explainer-" + slug + "-id-" + id + ".png"
   await s3.putObject({
     "ACL": "public-read",
     "Bucket": "screenshots.recoveredfactory.net",
     "Key": filename,
     "Body": screenshot,
     "ContentType": "image/png",
-  }).promise();
+  }).promise()
 
   return {
     statusCode: 200,
     body: JSON.stringify({
-      "url": "http://screenshots.recoveredfactory.net.s3-website-us-east-1.amazonaws.com/" + filename,
-      "parsed": parsed.query.ids
+      "url": "http://screenshots.recoveredfactory.net.s3-website-us-east-1.amazonaws.com/" + filename
     }),
     headers: {
       'Content-Type': 'application/json',

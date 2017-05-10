@@ -368,25 +368,11 @@ aws-lambda-local@^1.0.15:
   version "1.0.15"
   resolved "https://registry.yarnpkg.com/aws-lambda-local/-/aws-lambda-local-1.0.15.tgz#810c6e276dd62d3b76182353582ee82634c0a3ed"
 
-aws-sdk@^2.49.0:
+aws-sdk@^2.49.0, aws-sdk@^2.7.13:
   version "2.49.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.49.0.tgz#e340451b38b9772b2320da64a2cc272410667c69"
   dependencies:
     buffer "5.0.6"
-    crypto-browserify "1.0.9"
-    jmespath "0.15.0"
-    querystring "0.2.0"
-    sax "1.2.1"
-    url "0.10.3"
-    uuid "3.0.1"
-    xml2js "0.4.17"
-    xmlbuilder "4.2.1"
-
-aws-sdk@^2.7.13:
-  version "2.48.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.48.0.tgz#c89bbdbd71fdd33457cd65c46c4080e4e44b2702"
-  dependencies:
-    buffer "4.9.1"
     crypto-browserify "1.0.9"
     jmespath "0.15.0"
     querystring "0.2.0"
@@ -1129,14 +1115,6 @@ buffer-shims@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/buffer-shims/-/buffer-shims-1.0.0.tgz#9978ce317388c649ad8793028c3477ef044a8b51"
 
-buffer@4.9.1, buffer@^4.9.0:
-  version "4.9.1"
-  resolved "https://registry.yarnpkg.com/buffer/-/buffer-4.9.1.tgz#6d1bb601b07a4efced97094132093027c95bc298"
-  dependencies:
-    base64-js "^1.0.2"
-    ieee754 "^1.1.4"
-    isarray "^1.0.0"
-
 buffer@5.0.6:
   version "5.0.6"
   resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.0.6.tgz#2ea669f7eec0b6eda05b08f8b5ff661b28573588"
@@ -1149,6 +1127,14 @@ buffer@^3.0.1:
   resolved "https://registry.yarnpkg.com/buffer/-/buffer-3.6.0.tgz#a72c936f77b96bf52f5f7e7b467180628551defb"
   dependencies:
     base64-js "0.0.8"
+    ieee754 "^1.1.4"
+    isarray "^1.0.0"
+
+buffer@^4.9.0:
+  version "4.9.1"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-4.9.1.tgz#6d1bb601b07a4efced97094132093027c95bc298"
+  dependencies:
+    base64-js "^1.0.2"
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
@@ -4601,6 +4587,16 @@ slide@^1.1.5:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/slide/-/slide-1.1.6.tgz#56eb027d65b4d2dce6cb2e2d32c4d4afc9e1d707"
 
+slug@^0.9.1:
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/slug/-/slug-0.9.1.tgz#af08f608a7c11516b61778aa800dce84c518cfda"
+  dependencies:
+    unicode ">= 0.3.1"
+
+slugify@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/slugify/-/slugify-1.1.0.tgz#7e5b0938d52b5efab1878247ef0f6a4f05db7ee0"
+
 sntp@1.x.x:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/sntp/-/sntp-1.0.9.tgz#6541184cc90aeea6c6e7b35e2659082443c66198"
@@ -5044,6 +5040,10 @@ unbzip2-stream@^1.0.9:
   dependencies:
     buffer "^3.0.1"
     through "^2.3.6"
+
+"unicode@>= 0.3.1":
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/unicode/-/unicode-9.0.1.tgz#104706272c6464c574801be1b086f7245cf25158"
 
 unique-string@^1.0.0:
   version "1.0.0"

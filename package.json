@@ -42,6 +42,8 @@
     "got": "^6.7.1",
     "markdown-loader": "^2.0.0",
     "ps-node": "^0.1.6",
+    "slug": "^0.9.1",
+    "slugify": "^1.1.0",
     "url": "^0.11.0",
     "utf-8-validate": "^3.0.1",
     "uuid": "^3.0.1"
