@@ -5,7 +5,7 @@ plugins:
 
 custom:
   #webpackIncludeModules: false # disable auto including modules
-  bucket_name: "screenshots.recoveredfactory.net"
+  bucket_name: "apps.npr.org"
 
 provider:
   name: aws

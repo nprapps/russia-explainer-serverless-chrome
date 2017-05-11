@@ -92,7 +92,7 @@ export default (async function captureScreenshotHandler (event) {
   const filename = "cardbuilder/screenshots/russian-explainer-" + slug + "-id-" + id + ".png"
   await s3.putObject({
     "ACL": "public-read",
-    "Bucket": "stage-apps.npr.org",
+    "Bucket": "apps.npr.org",
     "Key": filename,
     "Body": screenshot,
     "ContentType": "image/png",
