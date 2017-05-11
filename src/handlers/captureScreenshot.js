@@ -76,7 +76,7 @@ export async function captureScreenshotOfUrl (url) {
 export default (async function captureScreenshotHandler (event) {
   const s3 = new AWS.S3()
   const { queryStringParameters: { id, slug } } = event
-  const url = "https://apps.npr.org/dailygraphics/graphics/trump-card-wireframe-20170410/child.html?ids=" + id
+  const url = 'https://apps.npr.org/dailygraphics/graphics/trump-card-wireframe-20170410/child.html?ids=' + id
 
   let screenshot
 
@@ -89,10 +89,10 @@ export default (async function captureScreenshotHandler (event) {
     throw new Error('Unable to capture screenshot')
   }
 
-  const filename = "russian-explainer-" + slug + "-id-" + id + ".png"
+  const filename = "cardbuilder/screenshots/russian-explainer-" + slug + "-id-" + id + ".png"
   await s3.putObject({
     "ACL": "public-read",
-    "Bucket": "screenshots.recoveredfactory.net",
+    "Bucket": "stage-apps.npr.org",
     "Key": filename,
     "Body": screenshot,
     "ContentType": "image/png",
@@ -101,7 +101,7 @@ export default (async function captureScreenshotHandler (event) {
   return {
     statusCode: 200,
     body: JSON.stringify({
-      "url": "http://screenshots.recoveredfactory.net.s3-website-us-east-1.amazonaws.com/" + filename
+      "url": "https://apps.npr.org" + "/" + filename
     }),
     headers: {
       'Content-Type': 'application/json',
