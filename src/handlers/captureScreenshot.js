@@ -76,7 +76,7 @@ export async function captureScreenshotOfUrl (url) {
 export default (async function captureScreenshotHandler (event) {
   const s3 = new AWS.S3()
   const { queryStringParameters: { id, slug } } = event
-  const url = 'https://apps.npr.org/dailygraphics/graphics/trump-card-wireframe-20170410/child.html?ids=' + id
+  const url = config.baseurl + id
 
   let screenshot
 
@@ -92,7 +92,7 @@ export default (async function captureScreenshotHandler (event) {
   const filename = "cardbuilder/screenshots/russian-explainer-" + slug + "-id-" + id + ".png"
   await s3.putObject({
     "ACL": "public-read",
-    "Bucket": "apps.npr.org",
+    "Bucket": config.bucket,
     "Key": filename,
     "Body": screenshot,
     "ContentType": "image/png",
