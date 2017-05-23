@@ -13,7 +13,7 @@ export async function captureScreenshotOfUrl (url) {
 
   const loading = async (startTime = Date.now()) => {
     if (!loaded && Date.now() - startTime < LOAD_TIMEOUT) {
-      await sleep(1000)
+      await sleep(1500)
       await loading(startTime)
     }
   }
@@ -96,6 +96,7 @@ export default (async function captureScreenshotHandler (event) {
     "Key": filename,
     "Body": screenshot,
     "ContentType": "image/png",
+    "CacheControl": "max-age=5"
   }).promise()
 
   return {
